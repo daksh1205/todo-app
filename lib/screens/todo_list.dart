@@ -26,18 +26,24 @@ class _TodoListPageState extends State<TodoListPage> {
         title: const Text('Todo List'),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: fetchTodo,
-        child: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (context, index) {
-            final item = items[index] as Map;
-            return ListTile(
-              leading: CircleAvatar(child: Text('${index + 1}')),
-              title: Text(item['title']),
-              subtitle: Text(item['description']),
-            );
-          },
+      body: Visibility(
+        visible: isLoading,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+        replacement: RefreshIndicator(
+          onRefresh: fetchTodo,
+          child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index] as Map;
+              return ListTile(
+                leading: CircleAvatar(child: Text('${index + 1}')),
+                title: Text(item['title']),
+                subtitle: Text(item['description']),
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -55,6 +61,7 @@ class _TodoListPageState extends State<TodoListPage> {
   }
 
   Future<void> fetchTodo() async {
+    
     const url = 'https://api.nstack.in/v1/todos?page=1&limit=10';
     final uri = Uri.parse(url);
     final response = await http.get(uri);
@@ -64,8 +71,9 @@ class _TodoListPageState extends State<TodoListPage> {
       setState(() {
         items = result;
       });
-    } else {
-      // Show error
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 }
