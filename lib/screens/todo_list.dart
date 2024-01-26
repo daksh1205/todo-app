@@ -5,7 +5,11 @@ import 'package:todo_app/screens/add_page.dart';
 import 'package:http/http.dart' as http;
 
 class TodoListPage extends StatefulWidget {
-  const TodoListPage({super.key});
+  final Map? todo;
+  const TodoListPage({
+    super.key,
+    this.todo,
+  });
 
   @override
   State<TodoListPage> createState() => _TodoListPageState();
@@ -46,6 +50,7 @@ class _TodoListPageState extends State<TodoListPage> {
                     onSelected: (value) {
                       if (value == 'edit') {
                         // Open Edit Page
+                        navigateToEditPage(item);
                       } else if (value == 'delete') {
                         // Delete and remove the item
                         deleteById(id);
@@ -75,11 +80,26 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
-  void navigateToAddPage() {
+  Future<void> navigateToEditPage(Map item) async {
+    final route = MaterialPageRoute(
+      builder: (context) => AddTodoPage(todo: item),
+    );
+    await Navigator.push(context, route);
+    setState(() {
+      isLoading = true;
+    });
+    fetchTodo();
+  }
+
+  Future<void> navigateToAddPage() async {
     final route = MaterialPageRoute(
       builder: (context) => AddTodoPage(),
     );
-    Navigator.push(context, route);
+    await Navigator.push(context, route);
+    setState(() {
+      isLoading = true;
+    });
+    fetchTodo();
   }
 
   Future<void> deleteById(String id) async {
